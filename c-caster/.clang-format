@@ -1,0 +1,15 @@
+BasedOnStyle: Google
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 100
+UseTab: Always
+
+BraceWrapping:
+  AfterFunction: false    # No newline after function declaration
+  AfterControlStatement: false  # No newline after if, for, while, etc.
+  AfterStruct: false      # No newline after struct declaration
+  AfterClass: false       # No newline after class declaration
+  AfterEnum: false        # No newline after enum declaration
+  AfterNamespace: false   # No newline after namespace declaration
+  BeforeElse: false       # No newline before 'else'
+  BeforeCatch: false      # No newline before 'catch'
