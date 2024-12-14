@@ -139,7 +139,7 @@ class Ray {
 
         // Increment xstep and ystep until we find a wall
         while (nextHorzTouchX >= 0 && nextHorzTouchX <= WINDOW_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= WINDOW_HEIGHT) {
-            if (grid.hasWallAt(nextHorzTouchX, nextHorzTouchY - (this.isRayFacingUp ? 1 : 0))) {
+            if (grid.hasWallhasWallAt(nextHorzTouchX, nextHorzTouchY - (this.isRayFacingUp ? 1 : 0))) {
                 foundHorzWallHit = true;
                 horzWallHitX = nextHorzTouchX;
                 horzWallHitY = nextHorzTouchY;

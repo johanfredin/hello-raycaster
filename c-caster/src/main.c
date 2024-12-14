@@ -32,13 +32,13 @@ const uint8_t map[MAP_NUM_ROWS][MAP_NUM_COLS] = {
 typedef struct Player {
 	float x;
 	float y;
-	uint16_t width;
-	uint16_t height;
-	int8_t turnDirection: 4; // -1 for left +1 for right 
-	int8_t walkDirection: 4; // -1 for left +1 for right
-	float rotationAngle;
 	float walkSpeed;
 	float turnSpeed;
+	float rotationAngle;
+	uint8_t width;
+	uint8_t height;
+	int8_t turnDirection; // -1 for left +1 for right 
+	int8_t walkDirection; // -1 for left +1 for right
 } Player;
 
 static Player player;
@@ -83,13 +83,13 @@ static void setup(void) {
 	player = (Player) {
 		WINDOW_WIDTH >> 1,
 		WINDOW_HEIGHT >> 1,
-		5,
-		5,
-		0,
+		100,
+		DEG_TO_RAD(90),
+		PI / 2,
 		0,
 		PI / 2,
-		50,
-		DEG_TO_RAD(45)
+		0,
+		0
 	};
 }
 
@@ -135,11 +135,29 @@ static void processInput(void) {
 	}
 }
 
+static uint8_t mapHasWallAt(float x, float y) {
+	if (x < 0 || x > WINDOW_WIDTH || y < 0 || y > WINDOW_HEIGHT) {
+		return 1;
+	}
+	const uint8_t mapGridIndexX = floor(x / TILE_SIZE);
+	const uint8_t mapGridIndexY = floor(y / TILE_SIZE);
+	return map[mapGridIndexY][mapGridIndexX] != 0;
+}
+
 static void movePlayer(float deltaTime) {
 	player.rotationAngle += player.turnDirection * player.turnSpeed * deltaTime;
 	const float moveStep = player.walkDirection * player.walkSpeed * deltaTime;
-	player.x += cosf(player.rotationAngle) * moveStep;
-	player.y += sinf(player.rotationAngle) * moveStep;
+	const float newPlayerX = player.x + cosf(player.rotationAngle) * moveStep;
+	const float newPlayerY = player.y + sinf(player.rotationAngle) * moveStep;
+
+	// Check collision
+	if (mapHasWallAt(newPlayerX, newPlayerY)) {
+		return;
+	}
+	
+	// Update position if no collision
+	player.x = newPlayerX;
+	player.y = newPlayerY;
 }
 
 static void update(void) {
