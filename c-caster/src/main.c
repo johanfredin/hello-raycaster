@@ -34,8 +34,8 @@ typedef struct Player {
 	float y;
 	uint16_t width;
 	uint16_t height;
-	float turnDirection; // -1 for left +1 for right 
-	float walkDirection; // -1 for left +1 for right
+	int8_t turnDirection: 4; // -1 for left +1 for right 
+	int8_t walkDirection: 4; // -1 for left +1 for right
 	float rotationAngle;
 	float walkSpeed;
 	float turnSpeed;
@@ -138,11 +138,8 @@ static void processInput(void) {
 static void movePlayer(float deltaTime) {
 	player.rotationAngle += player.turnDirection * player.turnSpeed * deltaTime;
 	const float moveStep = player.walkDirection * player.walkSpeed * deltaTime;
-	const float newPlayerX = player.x + cosf(player.rotationAngle) * moveStep;
-	const float newPlayerY = player.y + sinf(player.rotationAngle) * moveStep;
-
-	player.x = newPlayerX;
-	player.y = newPlayerY;
+	player.x += cosf(player.rotationAngle) * moveStep;
+	player.y += sinf(player.rotationAngle) * moveStep;
 }
 
 static void update(void) {
@@ -174,10 +171,10 @@ static void renderPlayer(void) {
 	};
 	SDL_RenderFillRect(renderer, &playerRectangle);
 	SDL_RenderDrawLine(renderer, 
-		MINIMAP_SCALE_FACTOR *player.x,
-		MINIMAP_SCALE_FACTOR *player.y,
-		MINIMAP_SCALE_FACTOR *player.x + cosf(player.rotationAngle) * 40,
-		MINIMAP_SCALE_FACTOR *player.y + sinf(player.rotationAngle) * 40
+		MINIMAP_SCALE_FACTOR * player.x,
+		MINIMAP_SCALE_FACTOR * player.y,
+		MINIMAP_SCALE_FACTOR * player.x + cosf(player.rotationAngle) * 40,
+		MINIMAP_SCALE_FACTOR * player.y + sinf(player.rotationAngle) * 40
 	);
 }
 
