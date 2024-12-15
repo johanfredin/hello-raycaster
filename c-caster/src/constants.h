@@ -17,7 +17,7 @@
 #define FOV (60 * (PI / 180))
 #define NUM_RAYS WINDOW_WIDTH
 
-#define MINIMAP_SCALE_FACTOR 1.0
+#define MINIMAP_SCALE_FACTOR 0.20
 
 #define FPS 30
 #define FRAME_TIME_LENGTH  (1000 / FPS)

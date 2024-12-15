@@ -2,12 +2,14 @@
 #include <SDL2/SDL_blendmode.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_video.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <time.h>
 #include <stdint.h>
@@ -62,6 +64,8 @@ static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static int isGameRunning = FALSE;
 static uint32_t ticksLastFrame;
+static uint32_t *colorBuffer = NULL;
+static SDL_Texture *colorBufferTexture = NULL;
 
 static float distanceBetweenPoints(float x1, float y1, float x2, float y2) {
 	return sqrtf(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))); 
@@ -107,6 +111,9 @@ static void setup(void) {
 		0,
 		0
 	};
+	// Allocate the total amount of bytes to hold our color buffer
+	colorBuffer = (uint32_t *)calloc(WINDOW_WIDTH * WINDOW_HEIGHT, sizeof(uint32_t));
+	colorBufferTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 static void processInput(void) {
@@ -377,11 +384,58 @@ static void renderPlayer(void) {
 	);
 }
 
+static void generate3DProjection(void) {
+	for (int i = 0; i < NUM_RAYS; i++) {
+		// Calculate perpendicular distance to avoid fisheye effect
+		float perpDistance = rays[i].distance * cosf(rays[i].rayAngle - player.rotationAngle);
+
+		float distanceToProjPlane = (WINDOW_WIDTH >> 1) / tanf(FOV / 2);
+		float projectedWallHeight = (TILE_SIZE / perpDistance) * distanceToProjPlane;
+
+		int wallStripHeight = (int) projectedWallHeight;
+
+		// Calculate wall top pixel. If less than 0 (meaning we are super close) set to 0
+		int wallTopPixel = (WINDOW_HEIGHT >> 1) - (wallStripHeight >> 1);
+		if (wallTopPixel < 0) {
+			wallTopPixel = 0;
+		}
+
+		// Calculate wall bottom pixel. If larger than window height (meaning we are super close)
+		// set to window height
+		int wallBottomPixel = (WINDOW_HEIGHT >> 1) + (wallStripHeight >> 1);
+		if (wallBottomPixel > WINDOW_HEIGHT) {
+			wallBottomPixel = WINDOW_HEIGHT;
+		}
+
+		for (int y = wallTopPixel; y < wallBottomPixel; y++) {
+			colorBuffer[(WINDOW_WIDTH * y) + i] = rays[i].wasHitVertical ? 0xFFFFFFFF : 0xFFCCCCCC;
+		}
+	}
+}
+
+static void renderColorBuffer(void) {
+	// Pitch = the amount of bytes per row
+	SDL_UpdateTexture(colorBufferTexture, NULL, colorBuffer, (int)((uint32_t)WINDOW_WIDTH * sizeof(uint32_t)));
+	SDL_RenderCopy(renderer, colorBufferTexture, NULL, NULL);
+}
+
+static void clearColorBuffer(uint32_t clearColor) {
+	for(int x = 0; x < WINDOW_WIDTH; x++) {
+		for(int y = 0; y < WINDOW_HEIGHT; y++) {
+			colorBuffer[(WINDOW_WIDTH * y) + x] = clearColor;
+		}
+	}
+}
+
 static void render(void) {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
-	// Render game objects
+	generate3DProjection();
+	renderColorBuffer();
+	clearColorBuffer(0xFF000000);
+	
+	// Render minimap
 	renderMap();
 	renderRays();
 	renderPlayer();
@@ -393,7 +447,10 @@ static void render(void) {
 static void destroyWindow(void) {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+	SDL_DestroyTexture(colorBufferTexture);
+	free(colorBuffer);
 	SDL_Quit();
+	
 }
 
 int main() {
