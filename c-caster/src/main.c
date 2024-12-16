@@ -9,27 +9,25 @@
 #include <SDL2/SDL_video.h>
 #include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/types.h>
-#include <time.h>
 #include <stdint.h>
-#include <limits.h>
 #include "constants.h"
+#include "textures.h"
 
-const uint8_t map[MAP_NUM_ROWS][MAP_NUM_COLS] = {
+const int map[MAP_NUM_ROWS][MAP_NUM_COLS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    {1, 0, 0, 0, 2, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5}
 };
 
 typedef struct Player {
@@ -54,8 +52,8 @@ typedef struct Ray {
 	uint8_t isRayFacingDown: 1;
 	uint8_t isRayFacingLeft: 1;
 	uint8_t isRayFacingRight: 1;
-	//TODO: This might not fit inside 3 bits!!!
-	uint8_t wallHitContent: 3;		
+	uint8_t padding: 3;
+	uint8_t wallHitContent;		
 } Ray;
 
 static Player player;
@@ -66,6 +64,7 @@ static int isGameRunning = FALSE;
 static uint32_t ticksLastFrame;
 static uint32_t *colorBuffer = NULL;
 static SDL_Texture *colorBufferTexture = NULL;
+uint32_t *textures[NUM_TEXTURES];
 
 static float distanceBetweenPoints(float x1, float y1, float x2, float y2) {
 	return sqrtf(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))); 
@@ -109,11 +108,19 @@ static void setup(void) {
 		0,
 		PI / 2,
 		0,
-		0
+		0,
 	};
 	// Allocate the total amount of bytes to hold our color buffer
 	colorBuffer = (uint32_t *)calloc(WINDOW_WIDTH * WINDOW_HEIGHT, sizeof(uint32_t));
 	colorBufferTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
+	textures[0] = (uint32_t*) REDBRICK_TEXTURE;
+    textures[1] = (uint32_t*) PURPLESTONE_TEXTURE;
+    textures[2] = (uint32_t*) MOSSYSTONE_TEXTURE;
+    textures[3] = (uint32_t*) GRAYSTONE_TEXTURE;
+    textures[4] = (uint32_t*) COLORSTONE_TEXTURE;
+    textures[5] = (uint32_t*) BLUESTONE_TEXTURE;
+    textures[6] = (uint32_t*) WOOD_TEXTURE;
+    textures[7] = (uint32_t*) EAGLE_TEXTURE;
 }
 
 static void processInput(void) {
@@ -398,6 +405,11 @@ static void generate3DProjection(void) {
 		int wallTopPixel = (WINDOW_HEIGHT >> 1) - (wallStripHeight >> 1);
 		if (wallTopPixel < 0) {
 			wallTopPixel = 0;
+		} else {
+			// Draw any ceiling in view
+			for (int y = 0; y < wallTopPixel; y++) {
+				colorBuffer[(WINDOW_WIDTH * y) + i] = 0xFF333333;
+			}
 		}
 
 		// Calculate wall bottom pixel. If larger than window height (meaning we are super close)
@@ -405,11 +417,39 @@ static void generate3DProjection(void) {
 		int wallBottomPixel = (WINDOW_HEIGHT >> 1) + (wallStripHeight >> 1);
 		if (wallBottomPixel > WINDOW_HEIGHT) {
 			wallBottomPixel = WINDOW_HEIGHT;
+		} else {
+			// Draw any floor in view
+			for (int y = wallBottomPixel; y < WINDOW_HEIGHT; y++) {
+				colorBuffer[(WINDOW_WIDTH * y) + i] = 0xFF777777;
+			}
 		}
 
-		for (int y = wallTopPixel; y < wallBottomPixel; y++) {
-			colorBuffer[(WINDOW_WIDTH * y) + i] = rays[i].wasHitVertical ? 0xFFFFFFFF : 0xFFCCCCCC;
+		int textureOffsetX;
+
+		// Calculaye texture offset x
+		if(rays[i].wasHitVertical) {
+			// Perform offset for the vertical hit
+			textureOffsetX = (int) rays[i].wallHitY % TILE_SIZE;
+		} else {
+			// Perform offset for the horisontal hit
+			textureOffsetX = (int) rays[i].wallHitX % TILE_SIZE;
 		}
+		
+		// Get the correct texture id number from the map content
+		uint8_t texNum = rays[i].wallHitContent - 1;
+
+		// Draw the vertical strip (e.g wall slice)
+		for (int y = wallTopPixel; y < wallBottomPixel; y++) {
+			// Calculate textureOffsetY, multiply by texture width / wallStrip height to translate texture to height of wall strip on the screen
+			int distanceFromTop = (y + (wallStripHeight >> 1)) - (WINDOW_HEIGHT >> 1);
+			int textureOffsetY = distanceFromTop * ((float) TEXTURE_HEIGHT / wallStripHeight);
+
+			// set the color of the wall based on the color from the texture
+			uint32_t texelColor = textures[texNum][(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
+
+			colorBuffer[(WINDOW_WIDTH * y) + i] = texelColor;
+		}
+	
 	}
 }
 
@@ -450,7 +490,6 @@ static void destroyWindow(void) {
 	SDL_DestroyTexture(colorBufferTexture);
 	free(colorBuffer);
 	SDL_Quit();
-	
 }
 
 int main() {
