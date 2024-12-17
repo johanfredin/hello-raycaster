@@ -64,7 +64,6 @@ static int isGameRunning = FALSE;
 static uint32_t ticksLastFrame;
 static uint32_t *colorBuffer = NULL;
 static SDL_Texture *colorBufferTexture = NULL;
-uint32_t *textures[NUM_TEXTURES];
 
 static float distanceBetweenPoints(float x1, float y1, float x2, float y2) {
 	return sqrtf(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))); 
@@ -113,14 +112,7 @@ static void setup(void) {
 	// Allocate the total amount of bytes to hold our color buffer
 	colorBuffer = (uint32_t *)calloc(WINDOW_WIDTH * WINDOW_HEIGHT, sizeof(uint32_t));
 	colorBufferTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
-	textures[0] = (uint32_t*) REDBRICK_TEXTURE;
-    textures[1] = (uint32_t*) PURPLESTONE_TEXTURE;
-    textures[2] = (uint32_t*) MOSSYSTONE_TEXTURE;
-    textures[3] = (uint32_t*) GRAYSTONE_TEXTURE;
-    textures[4] = (uint32_t*) COLORSTONE_TEXTURE;
-    textures[5] = (uint32_t*) BLUESTONE_TEXTURE;
-    textures[6] = (uint32_t*) WOOD_TEXTURE;
-    textures[7] = (uint32_t*) EAGLE_TEXTURE;
+	loadWallTextures();
 }
 
 static void processInput(void) {
@@ -445,7 +437,7 @@ static void generate3DProjection(void) {
 			int textureOffsetY = distanceFromTop * ((float) TEXTURE_HEIGHT / wallStripHeight);
 
 			// set the color of the wall based on the color from the texture
-			uint32_t texelColor = textures[texNum][(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
+			uint32_t texelColor = wallTextures[texNum].textureBuffer[(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
 
 			colorBuffer[(WINDOW_WIDTH * y) + i] = texelColor;
 		}

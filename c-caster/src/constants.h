@@ -28,6 +28,6 @@
 
 #define TEXTURE_WIDTH 64
 #define TEXTURE_HEIGHT 64
-#define NUM_TEXTURES 8
+#define NUM_TEXTURES 9
 
 #endif
