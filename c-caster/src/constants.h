@@ -17,6 +17,8 @@
 #define FOV (60 * (PI / 180))
 #define NUM_RAYS WINDOW_WIDTH
 
+#define DIST_PROJ_PLANE ((WINDOW_WIDTH / 2) / tan(FOV / 2))
+
 #define MINIMAP_SCALE_FACTOR 0.20
 
 #define FPS 30
@@ -26,8 +28,6 @@
 
 #define DEG_TO_RAD(deg) (deg) * (PI / 180)
 
-#define TEXTURE_WIDTH 64
-#define TEXTURE_HEIGHT 64
 #define NUM_TEXTURES 9
 
 #endif

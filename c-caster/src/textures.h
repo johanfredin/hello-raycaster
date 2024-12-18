@@ -5,8 +5,6 @@
 #include "constants.h"
 #include "upng.h"
 
-extern const char *textureFileNames[NUM_TEXTURES];
-
 typedef struct texture_t {
     upng_t *upng;
     uint16_t width;
@@ -17,5 +15,9 @@ typedef struct texture_t {
 extern texture_t wallTextures[NUM_TEXTURES];
 
 void loadWallTextures(void);
+
+void freeWallTextures(void);
+
+texture_t *getTextureAt(int i);
 
 #endif
