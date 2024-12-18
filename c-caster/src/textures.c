@@ -4,7 +4,7 @@
 #include "constants.h"
 #include "upng.h"
 
-const char *textureFileNames[NUM_TEXTURES] = {
+static const char *textureFileNames[NUM_TEXTURES] = {
     "./images/redbrick.png",
     "./images/purplestone.png",
     "./images/mossystone.png",
@@ -36,5 +36,15 @@ void loadWallTextures(void) {
             fprintf(stderr, "Could not decode png=%s\n", textureFileNames[i]);
             exit(1);
         }
+    }
+}
+
+texture_t *getTextureAt(int i) {
+    return &wallTextures[i];
+}
+
+void freeWallTextures(void) {
+    for (int i = 0; i < NUM_TEXTURES; i++) {
+        upng_free(wallTextures[i].upng);
     }
 }

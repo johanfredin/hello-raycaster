@@ -314,9 +314,10 @@ static inline void castRay(float rayAngle, int stripId) {
 
 static void castAllRays() {
 	// Start first ray subtracting half of our FOV
-	float rayAngle = player.rotationAngle - (FOV / 2);
-	for (int stripId = 0; stripId < NUM_RAYS; stripId++, rayAngle += FOV / NUM_RAYS) {
-		castRay(rayAngle, stripId);
+	int halfnrays = NUM_RAYS >> 1;
+	for (int col = 0; col < NUM_RAYS; col++) {
+		float rayAngle = player.rotationAngle + atanf((col - halfnrays) / DIST_PROJ_PLANE);
+		castRay(rayAngle, col);
 	}
 }
 
@@ -341,7 +342,7 @@ static void renderMap(void) {
 		for (int j = 0; j < MAP_NUM_COLS; j++) {
 			int tileX = j * TILE_SIZE;
 			int tileY = i * TILE_SIZE;
-			uint8_t tileColor = map[i][j] & 1 ? 0xFF : 0x00;
+			uint8_t tileColor = map[i][j] | 0 ? 0xFF : 0x00;
 			SDL_SetRenderDrawColor(renderer, tileColor, tileColor, tileColor, 0xFF);
 			SDL_Rect mapTileRect = {
 				MINIMAP_SCALE_FACTOR * tileX,
@@ -388,8 +389,7 @@ static void generate3DProjection(void) {
 		// Calculate perpendicular distance to avoid fisheye effect
 		float perpDistance = rays[i].distance * cosf(rays[i].rayAngle - player.rotationAngle);
 
-		float distanceToProjPlane = (WINDOW_WIDTH >> 1) / tanf(FOV / 2);
-		float projectedWallHeight = (TILE_SIZE / perpDistance) * distanceToProjPlane;
+		float projectedWallHeight = (TILE_SIZE / perpDistance) * DIST_PROJ_PLANE;
 
 		int wallStripHeight = (int) projectedWallHeight;
 
@@ -430,14 +430,16 @@ static void generate3DProjection(void) {
 		// Get the correct texture id number from the map content
 		uint8_t texNum = rays[i].wallHitContent - 1;
 
+		const texture_t *wallTexture = getTextureAt(texNum);
+
 		// Draw the vertical strip (e.g wall slice)
 		for (int y = wallTopPixel; y < wallBottomPixel; y++) {
 			// Calculate textureOffsetY, multiply by texture width / wallStrip height to translate texture to height of wall strip on the screen
 			int distanceFromTop = (y + (wallStripHeight >> 1)) - (WINDOW_HEIGHT >> 1);
-			int textureOffsetY = distanceFromTop * ((float) TEXTURE_HEIGHT / wallStripHeight);
+			int textureOffsetY = distanceFromTop * ((float) wallTexture->height / wallStripHeight);
 
 			// set the color of the wall based on the color from the texture
-			uint32_t texelColor = wallTextures[texNum].textureBuffer[(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
+			uint32_t texelColor = wallTextures[texNum].textureBuffer[(wallTexture->width * textureOffsetY) + textureOffsetX];
 
 			colorBuffer[(WINDOW_WIDTH * y) + i] = texelColor;
 		}
@@ -481,6 +483,7 @@ static void destroyWindow(void) {
 	SDL_DestroyWindow(window);
 	SDL_DestroyTexture(colorBufferTexture);
 	free(colorBuffer);
+	freeWallTextures();
 	SDL_Quit();
 }
 
