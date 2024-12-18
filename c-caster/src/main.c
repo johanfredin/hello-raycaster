@@ -314,16 +314,11 @@ static inline void castRay(float rayAngle, int stripId) {
 
 static void castAllRays() {
 	// Start first ray subtracting half of our FOV
-	float rayAngle = player.rotationAngle - (FOV / 2);
-
-	// uint16_t half = NUM_RAYS >> 1;	
-	// for (int stripId = 0; stripId < NUM_RAYS; stripId++, rayAngle += FOV / NUM_RAYS) {
-	// 	castRay(rayAngle, stripId);
-	// }
-	   for (int col = 0; col < NUM_RAYS; col++) {
-        float rayAngle = player.rotationAngle + atan((col - (float)NUM_RAYS/2) / DIST_PROJ_PLANE);
-        castRay(rayAngle, col);
-    }
+	int halfnrays = NUM_RAYS >> 1;
+	for (int col = 0; col < NUM_RAYS; col++) {
+		float rayAngle = player.rotationAngle + atanf((col - halfnrays) / DIST_PROJ_PLANE);
+		castRay(rayAngle, col);
+	}
 }
 
 static void update(void) {

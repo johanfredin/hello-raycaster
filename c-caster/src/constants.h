@@ -17,7 +17,7 @@
 #define FOV (60 * (PI / 180))
 #define NUM_RAYS WINDOW_WIDTH
 
-#define DIST_PROJ_PLANE ((WINDOW_WIDTH / 2) / tan(FOV / 2))
+#define DIST_PROJ_PLANE ((WINDOW_WIDTH >> 1) / tanf(FOV / 2))
 
 #define MINIMAP_SCALE_FACTOR 0.20
 
