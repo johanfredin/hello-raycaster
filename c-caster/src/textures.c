@@ -5,15 +5,15 @@
 #include "upng.h"
 
 const char *textureFileNames[NUM_TEXTURES] = {
-    "./images/bluestone.png",
-    "./images/colorstone.png",
-    "./images/eagle.png",
-    "./images/graystone.png",
-    "./images/mossystone.png",
-    "./images/pikuma.png",
-    "./images/purplestone.png",
     "./images/redbrick.png",
-    "./images/wood.png"
+    "./images/purplestone.png",
+    "./images/mossystone.png",
+    "./images/graystone.png",
+    "./images/colorstone.png",
+    "./images/bluestone.png",
+    "./images/wood.png",
+    "./images/eagle.png",
+    "./images/pikuma.png"
 };
 
 texture_t wallTextures[NUM_TEXTURES];
