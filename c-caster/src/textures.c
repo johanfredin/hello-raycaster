@@ -1,7 +1,7 @@
 #include "textures.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "constants.h"
+#include "defs.h"
 #include "upng.h"
 
 static const char *textureFileNames[NUM_TEXTURES] = {
