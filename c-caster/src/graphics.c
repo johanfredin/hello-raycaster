@@ -78,3 +78,11 @@ void destroyWindow(void) {
 void drawPixel(int x, int y, uint32_t color) {
     colorBuffer[(WINDOW_WIDTH * y) + x] = color;
 }
+
+void drawRect(int x, int y, int w, int h, uint32_t color) {
+    for (int i = x; i < (x + w); x++) {
+        for (int j = y; j < (y + h); y++) {
+            drawPixel(i, j, color);
+        }
+    }
+}
