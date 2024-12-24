@@ -12,14 +12,12 @@
 void renderWallProjection(void) {
 	for (int x = 0; x < NUM_RAYS; x++) {
 		// Calculate perpendicular distance to avoid fisheye effect
-		float perpDistance = rays[x].distance * cosf(rays[x].rayAngle - player.rotationAngle);
-
-		float projectedWallHeight = (TILE_SIZE / perpDistance) * DIST_PROJ_PLANE;
-
-		int wallStripHeight = (int) projectedWallHeight;
+		const float perpDistance = rays[x].distance * cosf(rays[x].rayAngle - player.rotationAngle);
+		const float wallHeight = (TILE_SIZE / perpDistance) * DIST_PROJ_PLANE;
+		const int halfHeight = (int) wallHeight >> 1;
 
 		// Calculate wall top pixel. If less than 0 (meaning we are super close) set to 0
-		int wallTopPixel = (WINDOW_HEIGHT >> 1) - (wallStripHeight >> 1);
+		int wallTopPixel = (WINDOW_HEIGHT >> 1) - halfHeight;
 		if (wallTopPixel < 0) {
 			wallTopPixel = 0;
 		} else {
@@ -31,7 +29,7 @@ void renderWallProjection(void) {
 
 		// Calculate wall bottom pixel. If larger than window height (meaning we are super close)
 		// set to window height
-		int wallBottomPixel = (WINDOW_HEIGHT >> 1) + (wallStripHeight >> 1);
+		int wallBottomPixel = (WINDOW_HEIGHT >> 1) + halfHeight;
 		if (wallBottomPixel > WINDOW_HEIGHT) {
 			wallBottomPixel = WINDOW_HEIGHT;
 		} else {
@@ -63,8 +61,8 @@ void renderWallProjection(void) {
 		// Draw the vertical strip (e.g wall slice)
 		for (int y = wallTopPixel; y < wallBottomPixel; y++) {
 			// Calculate textureOffsetY, multiply by texture width / wallStrip height to translate texture to height of wall strip on the screen
-			int distanceFromTop = (y + (wallStripHeight >> 1)) - (WINDOW_HEIGHT >> 1);
-			int textureOffsetY = distanceFromTop * ((float) textureHeight / wallStripHeight);
+			int distanceFromTop = (y + halfHeight) - (WINDOW_HEIGHT >> 1);
+			int textureOffsetY = distanceFromTop * ((float) textureHeight / halfHeight);
 
 			// set the color of the wall based on the color from the texture
 			color_t *wallTextureBuffer = (color_t*) upng_get_buffer(texture);
