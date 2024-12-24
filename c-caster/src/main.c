@@ -157,7 +157,7 @@ static inline void castRay(float rayAngle, int stripId) {
     float nextHorzTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
-    while (nextHorzTouchX >= 0 && nextHorzTouchX <= (MAP_NUM_COLS * TILE_SIZE) && nextHorzTouchY >= 0 && nextHorzTouchY <= (MAP_NUM_ROWS * TILE_SIZE)) {
+    while (isInsideMap(nextHorzTouchX, nextHorzTouchY)) {
         float xToCheck = nextHorzTouchX;
         float yToCheck = nextHorzTouchY + (isRayFacingUp ? -1 : 0);
         
@@ -165,7 +165,7 @@ static inline void castRay(float rayAngle, int stripId) {
             // found a wall hit
             horzWallHitX = nextHorzTouchX;
             horzWallHitY = nextHorzTouchY;
-            horzWallContent = map[(uint8_t)floorf(yToCheck / TILE_SIZE)][(uint8_t)floorf(xToCheck / TILE_SIZE)];
+            horzWallContent = getMapAt((uint8_t)floorf(yToCheck / TILE_SIZE), (uint8_t)floorf(xToCheck / TILE_SIZE));
             foundHorzWallHit = true;
             break;
         } else {
@@ -201,7 +201,7 @@ static inline void castRay(float rayAngle, int stripId) {
     float nextVertTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
-    while (nextVertTouchX >= 0 && nextVertTouchX <= (MAP_NUM_COLS * TILE_SIZE) && nextVertTouchY >= 0 && nextVertTouchY <= (MAP_NUM_ROWS * TILE_SIZE)) {
+	while (isInsideMap(nextVertTouchX, nextVertTouchY)) {
         float xToCheck = nextVertTouchX + (isRayFacingLeft ? -1 : 0);
         float yToCheck = nextVertTouchY;
         
@@ -209,7 +209,7 @@ static inline void castRay(float rayAngle, int stripId) {
             // found a wall hit
             vertWallHitX = nextVertTouchX;
             vertWallHitY = nextVertTouchY;
-            vertWallContent = map[(uint8_t)floorf(yToCheck / TILE_SIZE)][(uint8_t)floorf(xToCheck / TILE_SIZE)];
+            vertWallContent = getMapAt((uint8_t) floorf (yToCheck / TILE_SIZE), (uint8_t) floorf(xToCheck / TILE_SIZE));
             foundVertWallHit = true;
             break;
         } else {

@@ -6,8 +6,6 @@
 #define TWO_PI 6.28318530
 
 #define TILE_SIZE 64
-#define MAP_NUM_ROWS 13
-#define MAP_NUM_COLS 20
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 800

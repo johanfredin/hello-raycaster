@@ -1,9 +1,10 @@
 #include "graphics.h"
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include <stdio.h>
 #include "defs.h"
 
-#define FULL_SCREEN 1
+#define FULL_SCREEN 0
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -55,7 +56,7 @@ void renderColorBuffer(void) {
         colorBufferTexture, 
         NULL, 
         colorBuffer, 
-        (int)WINDOW_WIDTH * sizeof(uint32_t)
+        (int) WINDOW_WIDTH * sizeof(uint32_t)
     );
 	SDL_RenderCopy(renderer, colorBufferTexture, NULL, NULL);
     SDL_RenderPresent(renderer);
@@ -80,8 +81,8 @@ void drawPixel(int x, int y, uint32_t color) {
 }
 
 void drawRect(int x, int y, int w, int h, uint32_t color) {
-    for (int i = x; i < (x + w); x++) {
-        for (int j = y; j < (y + h); y++) {
+    for (int i = x; i <= (x + w); i++) {
+        for (int j = y; j < (y + h); j++) {
             drawPixel(i, j, color);
         }
     }
