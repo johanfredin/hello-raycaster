@@ -38,7 +38,7 @@ void renderMap(void) {
 		for (int j = 0; j < MAP_NUM_COLS; j++) {
 			int tileX = j * TILE_SIZE;
 			int tileY = i * TILE_SIZE;
-			uint32_t tileColor = map[i][j] | 0 ? 0xFFFFFFFF : 0;
+			color_t tileColor = map[i][j] | 0 ? 0xFFFFFFFF : 0;
 			drawRect(
 				MINIMAP_SCALE_FACTOR * tileX,
 				MINIMAP_SCALE_FACTOR * tileY,

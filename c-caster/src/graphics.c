@@ -1,10 +1,12 @@
 #include "graphics.h"
+#include <math.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include <stdint.h>
 #include <stdio.h>
 #include "defs.h"
 
-#define FULL_SCREEN 0
+#define FULL_SCREEN 1
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -62,7 +64,7 @@ void renderColorBuffer(void) {
     SDL_RenderPresent(renderer);
 }
 
-void clearColorBuffer(uint32_t clearColor) {
+void clearColorBuffer(color_t clearColor) {
 	for (int i = 0; i < (WINDOW_WIDTH * WINDOW_HEIGHT); i++) {
 		colorBuffer[i] = clearColor;
 	}
@@ -76,14 +78,34 @@ void destroyWindow(void) {
 	SDL_Quit();
 }
 
-void drawPixel(int x, int y, uint32_t color) {
+void drawPixel(int x, int y, color_t color) {
     colorBuffer[(WINDOW_WIDTH * y) + x] = color;
 }
 
-void drawRect(int x, int y, int w, int h, uint32_t color) {
+void drawRect(int x, int y, int w, int h, color_t color) {
     for (int i = x; i <= (x + w); i++) {
         for (int j = y; j < (y + h); j++) {
             drawPixel(i, j, color);
         }
     }
+}
+
+void drawLine(int x0, int y0, int x1, int y1, color_t color) {
+	const int deltaX = (x1 - x0);
+	const int deltaY = (y1 - y0);
+	const int absDx = abs(deltaX);
+	const int absDy = abs(deltaY);
+	const int sideLength = absDx > absDy ? absDx : absDy;
+
+	// Find out how much we should increment in x and y each step
+	const float xInc = deltaX / (float) sideLength;
+	const float yInc = deltaY / (float) sideLength;
+
+	float currentX = x0;
+	float currentY = y0;
+	for (int i = 0; i <= sideLength; i++) {
+		drawPixel(roundf(currentX), roundf(currentY), color);
+		currentX += xInc;
+		currentY += yInc;
+	}
 }
