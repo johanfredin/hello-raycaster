@@ -15,7 +15,7 @@ static bool isGameRunning = false;
 static uint32_t ticksLastFrame;
 
 static void setup(void) {
-	loadWallTextures();
+	loadTextures();
 }
 
 static void processInput(void) {
@@ -79,18 +79,22 @@ static void update(void) {
 
 static void render(void) {
 	clearColorBuffer(0xFF000000);
+
+	// Render walls and sprites
 	renderWallProjection();
-	
-	renderMap();
-	renderRays();
-	renderPlayer();
+	// renderSpriteProjection();
+
+	// Render mini-map objects
+	renderMapGrid();
+	renderMapRays();
+	renderMapPlayer();
 
 	renderColorBuffer();
 }
 
 
 static void releaseResources(void) {
-	freeWallTextures();
+	freeTextures();
 	destroyWindow();
 	SDL_Quit();
 }

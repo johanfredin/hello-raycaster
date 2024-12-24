@@ -19,6 +19,6 @@ typedef struct ray_t {
 extern ray_t rays[NUM_RAYS];
 
 void castAllRays(void);
-void renderRays(void);
+void renderMapRays(void);
 
 #endif

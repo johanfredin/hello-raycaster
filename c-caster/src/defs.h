@@ -16,7 +16,7 @@
 
 #define MINIMAP_SCALE_FACTOR 0.20
 
-#define FPS 60
+#define FPS 30
 #define FRAME_TIME_LENGTH  (1000 / FPS)
 
 #define SDL_DEFAULT_DRIVER -1

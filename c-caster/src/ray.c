@@ -1,13 +1,17 @@
 #include "ray.h"
+#include "defs.h"
 #include "graphics.h"
 #include "player.h"
 #include <math.h>
 #include "map.h"
 #include <float.h>
 
+static const float HALF_PI = 0.5 * PI;
+static const float ONE_POINT_FIVE_PI = 1.5 * PI; 
+
 ray_t rays[NUM_RAYS];
 
-static float distanceBetweenPoints(float x1, float y1, float x2, float y2) {
+static inline float distanceBetweenPoints(float x1, float y1, float x2, float y2) {
 	return sqrtf(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))); 
 }
 
@@ -18,15 +22,32 @@ static inline void normalizeAngle(float *angle) {
 	}
 }
 
+static inline bool isRayFacingDown(float *angle) {
+    return *angle > 0 & *angle < PI;
+}
+
+static inline bool isRayFacingUp(float *angle) {
+    return !isRayFacingDown(angle);
+}
+
+static inline bool isRayFacingRight(float *angle) {
+    return (*angle < HALF_PI) | (*angle > ONE_POINT_FIVE_PI);
+}
+
+static inline bool isRayFacingLeft(float *angle) {
+    return !isRayFacingRight(angle);
+}
+
 static void castRay(float rayAngle, int stripId) {
 	normalizeAngle(&rayAngle);
-	const bool isRayFacingDown = rayAngle > 0 && rayAngle < PI;
-    const bool isRayFacingUp = !isRayFacingDown;
-    const bool isRayFacingRight = rayAngle < 0.5 * PI || rayAngle > 1.5 * PI;
-    const bool isRayFacingLeft = !isRayFacingRight;
     
     float xintercept, yintercept;
     float xstep, ystep;
+
+    const bool isFacingUp = isRayFacingUp(&rayAngle);
+    const bool isFacingDown = !isFacingUp;
+    const bool isFacingRight = isRayFacingRight(&rayAngle);
+    const bool isFacingLeft = !isFacingRight;
 
     ///////////////////////////////////////////
     // HORIZONTAL RAY-GRID INTERSECTION CODE
@@ -35,22 +56,25 @@ static void castRay(float rayAngle, int stripId) {
     uint8_t horzWallContent = 0;
 	float horzWallHitX = 0;
     float horzWallHitY = 0;
-    
 
     // Find the y-coordinate of the closest horizontal grid intersection
     yintercept = floorf(player.y / TILE_SIZE) * TILE_SIZE;
-    yintercept += isRayFacingDown ? TILE_SIZE : 0;
+    if (isFacingDown) {
+        yintercept += TILE_SIZE;
+    }
 
     // Find the x-coordinate of the closest horizontal grid intersection
     xintercept = player.x + (yintercept - player.y) / tanf(rayAngle);
 
     // Calculate the increment xstep and ystep
-    ystep = TILE_SIZE;
-    ystep *= isRayFacingUp ? -1 : 1;
+    ystep = isFacingUp ? -TILE_SIZE : +TILE_SIZE;
 
     xstep = TILE_SIZE / tanf(rayAngle);
-    xstep *= (isRayFacingLeft && xstep > 0) ? -1 : 1;
-    xstep *= (isRayFacingRight && xstep < 0) ? -1 : 1;
+    if ((isFacingLeft) & (xstep > 0)) {
+        xstep = -xstep;
+    } else if ((isFacingRight) & (xstep < 0)) {
+        xstep = -xstep;
+    }
 
     float nextHorzTouchX = xintercept;
     float nextHorzTouchY = yintercept;
@@ -58,7 +82,10 @@ static void castRay(float rayAngle, int stripId) {
     // Increment xstep and ystep until we find a wall
     while (isInsideMap(nextHorzTouchX, nextHorzTouchY)) {
         float xToCheck = nextHorzTouchX;
-        float yToCheck = nextHorzTouchY + (isRayFacingUp ? -1 : 0);
+        float yToCheck = nextHorzTouchY;
+        if (isFacingUp) {
+            yToCheck--;
+        }
         
         if (mapHasWallAt(xToCheck, yToCheck)) {
             // found a wall hit
@@ -83,25 +110,25 @@ static void castRay(float rayAngle, int stripId) {
 
     // Find the x-coordinate of the closest horizontal grid intersection
     xintercept = floor(player.x / TILE_SIZE) * TILE_SIZE;
-    xintercept += isRayFacingRight ? TILE_SIZE : 0;
+    xintercept += isFacingRight ? TILE_SIZE : 0;
 
     // Find the y-coordinate of the closest horizontal grid intersection
     yintercept = player.y + (xintercept - player.x) * tanf(rayAngle);
 
     // Calculate the increment xstep and ystep
     xstep = TILE_SIZE;
-    xstep *= isRayFacingLeft ? -1 : 1;
+    xstep *= isFacingLeft ? -1 : 1;
 
     ystep = TILE_SIZE * tanf(rayAngle);
-    ystep *= (isRayFacingUp && ystep > 0) ? -1 : 1;
-    ystep *= (isRayFacingDown && ystep < 0) ? -1 : 1;
+    ystep *= (isFacingUp && ystep > 0) ? -1 : 1;
+    ystep *= (isFacingDown && ystep < 0) ? -1 : 1;
 
     float nextVertTouchX = xintercept;
     float nextVertTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
 	while (isInsideMap(nextVertTouchX, nextVertTouchY)) {
-        float xToCheck = nextVertTouchX + (isRayFacingLeft ? -1 : 0);
+        float xToCheck = nextVertTouchX + (isFacingLeft ? -1 : 0);
         float yToCheck = nextVertTouchY;
         
         if (mapHasWallAt(xToCheck, yToCheck)) {
@@ -146,7 +173,7 @@ void castAllRays(void) {
 	}
 }
 
-void renderRays(void) {
+void renderMapRays(void) {
 	for (int i = 0; i < NUM_RAYS; i++) {
         drawLine(
     		MINIMAP_SCALE_FACTOR * player.x, 

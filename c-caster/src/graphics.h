@@ -15,4 +15,6 @@ void drawRect(int x, int y, int w, int h, color_t color);
 
 void drawLine(int x0, int y0, int x1, int y1, color_t color);
 
+void changeColorIntensity(color_t *color, float factor);
+
 #endif

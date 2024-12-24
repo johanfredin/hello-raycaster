@@ -34,7 +34,7 @@ void movePlayer(float deltaTime) {
 	player.y = newPlayerY;
 }
 
-void renderPlayer(void) {
+void renderMapPlayer(void) {
 	drawRect(
 		MINIMAP_SCALE_FACTOR * player.x,
 		MINIMAP_SCALE_FACTOR * player.y,

@@ -33,7 +33,7 @@ bool mapHasWallAt(float x, float y) {
 	return map[mapGridIndexY][mapGridIndexX] != 0;
 }
 
-void renderMap(void) {
+void renderMapGrid(void) {
 	for (int i = 0; i < MAP_NUM_ROWS; i++) {
 		for (int j = 0; j < MAP_NUM_COLS; j++) {
 			int tileX = j * TILE_SIZE;
@@ -55,5 +55,5 @@ int getMapAt(int x, int y) {
 }
 
 bool isInsideMap(float x, float y) {
-	return x >= 0 && x <= _edgeHorz && y >= 0 && y <= _edgeVert;
+	return x >= 0 & x <= _edgeHorz & y >= 0 & y <= _edgeVert;
 }

@@ -7,7 +7,7 @@
 #define MAP_NUM_COLS 20
 
 bool mapHasWallAt(float x, float y);
-void renderMap(void);
+void renderMapGrid(void);
 int getMapAt(int x, int y);
 bool isInsideMap(float x, float y);
 

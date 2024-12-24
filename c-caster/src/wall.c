@@ -6,6 +6,7 @@
 #include <math.h>
 #include "ray.h"
 #include "textures.h"
+#include "upng.h"
 
 
 void renderWallProjection(void) {
@@ -53,17 +54,24 @@ void renderWallProjection(void) {
 		
 		// Get the correct texture id number from the map content
 		uint8_t texNum = rays[x].wallHitContent - 1;
-
-		const texture_t *wallTexture = getTextureAt(texNum);
+		
+		// Query the width and height from the upng
+		upng_t *texture = textures[texNum];
+		int textureWidth = upng_get_width(texture);
+		int textureHeight = upng_get_height(texture);
 
 		// Draw the vertical strip (e.g wall slice)
 		for (int y = wallTopPixel; y < wallBottomPixel; y++) {
 			// Calculate textureOffsetY, multiply by texture width / wallStrip height to translate texture to height of wall strip on the screen
 			int distanceFromTop = (y + (wallStripHeight >> 1)) - (WINDOW_HEIGHT >> 1);
-			int textureOffsetY = distanceFromTop * ((float) wallTexture->height / wallStripHeight);
+			int textureOffsetY = distanceFromTop * ((float) textureHeight / wallStripHeight);
 
 			// set the color of the wall based on the color from the texture
-			color_t texelColor = wallTextures[texNum].textureBuffer[(wallTexture->width * textureOffsetY) + textureOffsetX];
+			color_t *wallTextureBuffer = (color_t*) upng_get_buffer(texture);
+			color_t texelColor = wallTextureBuffer[(textureWidth * textureOffsetY) + textureOffsetX];
+			if(rays[x].wasHitVertical) {
+				changeColorIntensity(&texelColor, 0.7f);
+			}
 			drawPixel(x, y, texelColor);
 		}
 	}
