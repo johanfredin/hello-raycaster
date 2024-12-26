@@ -13,7 +13,12 @@ static const char *textureFileNames[NUM_TEXTURES] = {
     "./images/bluestone.png",
     "./images/wood.png",
     "./images/eagle.png",
-    "./images/pikuma.png"
+    "./images/pikuma.png",
+    "./images/barrel.png",
+    "./images/light.png",
+    "./images/table.png",
+    "./images/guard.png",
+    "./images/armor.png"
 };
 
 upng_t *textures[NUM_TEXTURES];

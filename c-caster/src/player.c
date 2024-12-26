@@ -5,6 +5,7 @@
 #include "defs.h"
 #include "graphics.h"
 #include "map.h"
+#include "utils.h"
 
 player_t player = {
 		WINDOW_WIDTH >> 1,
@@ -20,6 +21,7 @@ player_t player = {
 
 void movePlayer(float deltaTime) {
 	player.rotationAngle += player.turnDirection * player.turnSpeed * deltaTime;
+	normalizeAngle(&player.rotationAngle);
 	const float moveStep = player.walkDirection * player.walkSpeed * deltaTime;
 	const float newPlayerX = player.x + cosf(player.rotationAngle) * moveStep;
 	const float newPlayerY = player.y + sinf(player.rotationAngle) * moveStep;
@@ -38,8 +40,8 @@ void renderMapPlayer(void) {
 	drawRect(
 		MINIMAP_SCALE_FACTOR * player.x,
 		MINIMAP_SCALE_FACTOR * player.y,
-		MINIMAP_SCALE_FACTOR * (player.width * 30),
-		MINIMAP_SCALE_FACTOR * (player.height * 30),
+		player.width,
+		player.height,
         0xFFFFFFFF
     );
 }

@@ -82,32 +82,31 @@ void drawPixel(int x, int y, color_t color) {
     colorBuffer[(WINDOW_WIDTH * y) + x] = color;
 }
 
-void drawRect(int x, int y, int w, int h, color_t color) {
-    for (int i = x; i <= (x + w); i++) {
-        for (int j = y; j < (y + h); j++) {
+void drawRect(int x, int y, int width, int height, color_t color) {
+    for (int i = x; i <= (x + width); i++) {
+        for (int j = y; j <= (y + height); j++) {
             drawPixel(i, j, color);
         }
     }
 }
 
 void drawLine(int x0, int y0, int x1, int y1, color_t color) {
-	const int deltaX = (x1 - x0);
-	const int deltaY = (y1 - y0);
-	const int absDx = abs(deltaX);
-	const int absDy = abs(deltaY);
-	const int sideLength = absDx > absDy ? absDx : absDy;
+    int deltaX = (x1 - x0);
+    int deltaY = (y1 - y0);
 
-	// Find out how much we should increment in x and y each step
-	const float xInc = deltaX / (float) sideLength;
-	const float yInc = deltaY / (float) sideLength;
+    int longestSideLength = (abs(deltaX) >= abs(deltaY)) ? abs(deltaX) : abs(deltaY);
 
-	float currentX = x0;
-	float currentY = y0;
-	for (int i = 0; i <= sideLength; i++) {
-		drawPixel(roundf(currentX), roundf(currentY), color);
-		currentX += xInc;
-		currentY += yInc;
-	}
+    float xIncrement = deltaX / (float)longestSideLength;
+    float yIncrement = deltaY / (float)longestSideLength;
+
+    float currentX = x0;
+    float currentY = y0;
+
+    for (int i = 0; i < longestSideLength; i++) {
+        drawPixel(round(currentX), round(currentY), color);
+        currentX += xIncrement;
+        currentY += yIncrement;
+    }
 }
 
 void changeColorIntensity(color_t *color, float factor) {

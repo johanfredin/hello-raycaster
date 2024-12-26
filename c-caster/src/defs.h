@@ -14,7 +14,7 @@
 
 #define DIST_PROJ_PLANE ((WINDOW_WIDTH >> 1) / tanf(FOV / 2))
 
-#define MINIMAP_SCALE_FACTOR 0.20
+#define MINIMAP_SCALE_FACTOR 0.2
 
 #define FPS 30
 #define FRAME_TIME_LENGTH  (1000 / FPS)
@@ -23,6 +23,6 @@
 
 #define DEG_TO_RAD(deg) (deg) * (PI / 180)
 
-#define NUM_TEXTURES 9
+#define NUM_TEXTURES 14
 
 #endif

@@ -13,28 +13,29 @@ void renderWallProjection(void) {
 	for (int x = 0; x < NUM_RAYS; x++) {
 		// Calculate perpendicular distance to avoid fisheye effect
 		const float perpDistance = rays[x].distance * cosf(rays[x].rayAngle - player.rotationAngle);
+
+		// Calculate the projected wall height
 		const float wallHeight = (TILE_SIZE / perpDistance) * DIST_PROJ_PLANE;
 		const int halfHeight = (int) wallHeight >> 1;
 
-		// Calculate wall top pixel. If less than 0 (meaning we are super close) set to 0
-		int wallTopPixel = (WINDOW_HEIGHT >> 1) - halfHeight;
-		if (wallTopPixel < 0) {
-			wallTopPixel = 0;
+		// Find the wall top Y value
+		int wallTopY = (WINDOW_HEIGHT >> 1) - halfHeight;
+		if (wallTopY < 0) {
+			wallTopY = 0;
 		} else {
 			// Draw any ceiling in view
-			for (int y = 0; y < wallTopPixel; y++) {
+			for (int y = 0; y < wallTopY; y++) {
 				drawPixel(x, y, 0xFF333333);
 			}
 		}
 
-		// Calculate wall bottom pixel. If larger than window height (meaning we are super close)
-		// set to window height
-		int wallBottomPixel = (WINDOW_HEIGHT >> 1) + halfHeight;
-		if (wallBottomPixel > WINDOW_HEIGHT) {
-			wallBottomPixel = WINDOW_HEIGHT;
+		// Find the bottom Y value
+		int wallBottomY = (WINDOW_HEIGHT >> 1) + halfHeight;
+		if (wallBottomY > WINDOW_HEIGHT) {
+			wallBottomY = WINDOW_HEIGHT;
 		} else {
 			// Draw any floor in view
-			for (int y = wallBottomPixel; y < WINDOW_HEIGHT; y++) {
+			for (int y = wallBottomY; y < WINDOW_HEIGHT; y++) {
 				drawPixel(x, y, 0xFF777777);
 			}
 		}
@@ -59,10 +60,10 @@ void renderWallProjection(void) {
 		int textureHeight = upng_get_height(texture);
 
 		// Draw the vertical strip (e.g wall slice)
-		for (int y = wallTopPixel; y < wallBottomPixel; y++) {
+		for (int y = wallTopY; y < wallBottomY; y++) {
 			// Calculate textureOffsetY, multiply by texture width / wallStrip height to translate texture to height of wall strip on the screen
 			int distanceFromTop = (y + halfHeight) - (WINDOW_HEIGHT >> 1);
-			int textureOffsetY = distanceFromTop * ((float) textureHeight / halfHeight);
+			int textureOffsetY = distanceFromTop * ((float) textureHeight / wallHeight);
 
 			// set the color of the wall based on the color from the texture
 			color_t *wallTextureBuffer = (color_t*) upng_get_buffer(texture);

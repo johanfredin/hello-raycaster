@@ -4,23 +4,13 @@
 #include "player.h"
 #include <math.h>
 #include "map.h"
+#include "utils.h"
 #include <float.h>
 
 static const float HALF_PI = 0.5 * PI;
 static const float ONE_POINT_FIVE_PI = 1.5 * PI; 
 
 ray_t rays[NUM_RAYS];
-
-static inline float distanceBetweenPoints(float x1, float y1, float x2, float y2) {
-	return sqrtf(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))); 
-}
-
-static inline void normalizeAngle(float *angle) {
-	*angle = remainderf(*angle, TWO_PI);
-	if (*angle < 0) {
-		*angle = TWO_PI + *angle;
-	}
-}
 
 static inline bool isRayFacingDown(float *angle) {
     return *angle > 0 & *angle < PI;
@@ -67,7 +57,7 @@ static void castRay(float rayAngle, int stripId) {
     xintercept = player.x + (yintercept - player.y) / tanf(rayAngle);
 
     // Calculate the increment xstep and ystep
-    ystep = isFacingUp ? -TILE_SIZE : +TILE_SIZE;
+    ystep = isFacingUp ? -TILE_SIZE : TILE_SIZE;
 
     xstep = TILE_SIZE / tanf(rayAngle);
     if ((isFacingLeft) & (xstep > 0)) {
@@ -91,7 +81,10 @@ static void castRay(float rayAngle, int stripId) {
             // found a wall hit
             horzWallHitX = nextHorzTouchX;
             horzWallHitY = nextHorzTouchY;
-            horzWallContent = getMapAt((uint8_t)floorf(yToCheck / TILE_SIZE), (uint8_t)floorf(xToCheck / TILE_SIZE));
+            horzWallContent = getMapAt(
+                (uint8_t)floorf(yToCheck / TILE_SIZE), 
+                (uint8_t)floorf(xToCheck / TILE_SIZE)
+            );
             foundHorzWallHit = true;
             break;
         } else {
@@ -174,7 +167,7 @@ void castAllRays(void) {
 }
 
 void renderMapRays(void) {
-	for (int i = 0; i < NUM_RAYS; i++) {
+	for (int i = 0; i < NUM_RAYS; i += 50) {
         drawLine(
     		MINIMAP_SCALE_FACTOR * player.x, 
 	    	MINIMAP_SCALE_FACTOR * player.y, 

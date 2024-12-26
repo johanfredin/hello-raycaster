@@ -5,6 +5,7 @@
 #include "graphics.h"
 #include "player.h"
 #include "ray.h"
+#include "sprite.h"
 #include "textures.h"
 #include <stdbool.h>
 #include "map.h"
@@ -82,12 +83,14 @@ static void render(void) {
 
 	// Render walls and sprites
 	renderWallProjection();
-	// renderSpriteProjection();
+	renderSpriteProjection();
 
 	// Render mini-map objects
 	renderMapGrid();
 	renderMapRays();
 	renderMapPlayer();
+	renderMapSprites();
+	
 
 	renderColorBuffer();
 }
